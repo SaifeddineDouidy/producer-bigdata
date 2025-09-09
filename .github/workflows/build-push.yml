@@ -1,4 +1,4 @@
-name: Build and Push to ACR for producer
+name: Build and Push to ACR for Big Data Azure
 
 on:
   push:
