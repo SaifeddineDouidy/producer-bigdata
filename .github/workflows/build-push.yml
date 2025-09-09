@@ -1,4 +1,4 @@
-name: Build and Push to ACR
+name: Build and Push to ACR for producer
 
 on:
   push:
