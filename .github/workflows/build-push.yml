@@ -22,5 +22,5 @@ jobs:
 
     - name: Build and push Docker image
       run: |
-        docker build . -t eqacr535e7d69.azurecr.io/myapp:latest
+        docker build . -f ./Big_Data_Azure/Dockerfile -t eqacr535e7d69.azurecr.io/myapp:latest
         docker push eqacr535e7d69.azurecr.io/myapp:latest
