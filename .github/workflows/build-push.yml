@@ -46,6 +46,7 @@ jobs:
             EVENTHUB_NAMESPACE="${{ env.EVENTHUB_NAMESPACE }}" \
             EVENTHUB_NAME="${{ env.EVENTHUB_NAME }}" \
         --restart-policy Always \
+        --os-type Linux \
         --cpu 1 \
         --memory 1.5
 
