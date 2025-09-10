@@ -33,20 +33,21 @@ jobs:
         docker build . -t ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest
         docker push ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest
 
-    - name: Deploy to Azure Container Instances with Managed Identity
+    - name: Deploy to Azure Container Instances
       run: |
-            az container create \
-            --name ${{ env.ACI_NAME }} \
-            --resource-group ${{ env.RESOURCE_GROUP }} \
-            --image ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest \
-            --assign-identity [system] \
-            --acr-identity [system] \
-            --environment-variables \
-                EVENTHUB_NAMESPACE="${{ env.EVENTHUB_NAMESPACE }}" \
-                EVENTHUB_NAME="${{ env.EVENTHUB_NAME }}" \
-            --restart-policy Always \
-            --cpu 1 \
-            --memory 1.5
+        az container create \
+        --name ${{ env.ACI_NAME }} \
+        --resource-group ${{ env.RESOURCE_GROUP }} \
+        --image ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest \
+        --registry-login-server ${{ env.ACR_NAME }}.azurecr.io \
+        --registry-username $(az acr credential show --name ${{ env.ACR_NAME }} --query "username" -o tsv) \
+        --registry-password $(az acr credential show --name ${{ env.ACR_NAME }} --query "passwords[0].value" -o tsv) \
+        --environment-variables \
+            EVENTHUB_NAMESPACE="${{ env.EVENTHUB_NAMESPACE }}" \
+            EVENTHUB_NAME="${{ env.EVENTHUB_NAME }}" \
+        --restart-policy Always \
+        --cpu 1 \
+        --memory 1.5
 
     - name: Verify deployment
       run: |
