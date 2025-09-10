@@ -35,10 +35,17 @@ jobs:
 
     - name: Deploy to Azure Container Instances
       run: |
+        # Get ACR credentials using service principal
+        ACR_USERNAME=$(az acr credential show --name ${{ env.ACR_NAME }} --query "username" -o tsv)
+        ACR_PASSWORD=$(az acr credential show --name ${{ env.ACR_NAME }} --query "passwords[0].value" -o tsv)
+        
         az container create \
         --name ${{ env.ACI_NAME }} \
         --resource-group ${{ env.RESOURCE_GROUP }} \
         --image ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest \
+        --registry-login-server ${{ env.ACR_NAME }}.azurecr.io \
+        --registry-username "$ACR_USERNAME" \
+        --registry-password "$ACR_PASSWORD" \
         --assign-identity \
         --environment-variables \
             EVENTHUB_NAMESPACE="${{ env.EVENTHUB_NAMESPACE }}" \
