@@ -33,26 +33,14 @@ jobs:
         docker build . -t ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest
         docker push ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest
 
-    - name: Get ACR credentials
-      id: get-acr-creds
-      run: |
-        # Get ACR username and password
-        ACR_USERNAME=$(az acr credential show --name ${{ env.ACR_NAME }} --query "username" -o tsv)
-        ACR_PASSWORD=$(az acr credential show --name ${{ env.ACR_NAME }} --query "passwords[0].value" -o tsv)
-        
-        # Store in GitHub environment
-        echo "ACR_USERNAME=$ACR_USERNAME" >> $GITHUB_ENV
-        echo "ACR_PASSWORD=$ACR_PASSWORD" >> $GITHUB_ENV
-
-    - name: Deploy to Azure Container Instances
+    - name: Deploy to Azure Container Instances with Managed Identity
       run: |
         az container create \
           --name ${{ env.ACI_NAME }} \
           --resource-group ${{ env.RESOURCE_GROUP }} \
           --image ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest \
-          --registry-login-server ${{ env.ACR_NAME }}.azurecr.io \
-          --registry-username "${{ env.ACR_USERNAME }}" \
-          --registry-password "${{ env.ACR_PASSWORD }}" \
+          --acr-identity \
+          --assign-identity \
           --environment-variables \
             EVENTHUB_NAMESPACE="${{ env.EVENTHUB_NAMESPACE }}" \
             EVENTHUB_NAME="${{ env.EVENTHUB_NAME }}" \
