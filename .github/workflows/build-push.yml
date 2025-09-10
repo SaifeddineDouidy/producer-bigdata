@@ -40,7 +40,6 @@ jobs:
         --resource-group ${{ env.RESOURCE_GROUP }} \
         --image ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest \
         --assign-identity \
-        --acr-identity "system" \
         --environment-variables \
             EVENTHUB_NAMESPACE="${{ env.EVENTHUB_NAMESPACE }}" \
             EVENTHUB_NAME="${{ env.EVENTHUB_NAME }}" \
