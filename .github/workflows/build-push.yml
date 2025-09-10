@@ -35,18 +35,18 @@ jobs:
 
     - name: Deploy to Azure Container Instances with Managed Identity
       run: |
-        az container create \
-          --name ${{ env.ACI_NAME }} \
-          --resource-group ${{ env.RESOURCE_GROUP }} \
-          --image ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest \
-          --acr-identity \
-          --assign-identity \
-          --environment-variables \
-            EVENTHUB_NAMESPACE="${{ env.EVENTHUB_NAMESPACE }}" \
-            EVENTHUB_NAME="${{ env.EVENTHUB_NAME }}" \
-          --restart-policy Always \
-          --cpu 1 \
-          --memory 1.5
+            az container create \
+            --name ${{ env.ACI_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --image ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest \
+            --assign-identity [system] \
+            --acr-identity [system] \
+            --environment-variables \
+                EVENTHUB_NAMESPACE="${{ env.EVENTHUB_NAMESPACE }}" \
+                EVENTHUB_NAME="${{ env.EVENTHUB_NAME }}" \
+            --restart-policy Always \
+            --cpu 1 \
+            --memory 1.5
 
     - name: Verify deployment
       run: |
