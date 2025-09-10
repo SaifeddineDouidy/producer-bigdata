@@ -7,8 +7,8 @@ import time
 from datetime import datetime
 
 # Get environment variables
-EVENTHUB_FULLY_QUALIFIED_NAMESPACE = os.getenv("EVENTHUB_NAMESPACE")  # e.g., "eq-eh-namespace.servicebus.windows.net"
-EVENTHUB_NAME = os.getenv("EVENTHUB_NAME", "earthquakes")
+EVENTHUB_FULLY_QUALIFIED_NAMESPACE = os.getenv("EVENTHUB_NAMESPACE", "eq-eh-namespace.servicebus.windows.net")  # Use your namespace
+EVENTHUB_NAME = os.getenv("EVENTHUB_NAME", "earthquakes_hub")  # Changed from "earthquakes" to "earthquakes_hub"
 USGS_FEED = os.getenv("USGS_FEED", "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson")
 POLL_INTERVAL = int(os.getenv("POLL_INTERVAL", "300"))  # 5 minutes default
 

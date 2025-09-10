@@ -1,12 +1,20 @@
-name: Build and Push to ACR for Big Data Azure
+name: Build, Push to ACR and Deploy to ACI
 
 on:
   push:
     branches:
       - master
 
+env:
+  ACR_NAME: eqacr535e7d69
+  IMAGE_NAME: myapp
+  ACI_NAME: earthquake-producer
+  RESOURCE_GROUP: rg-earthquake-demo
+  EVENTHUB_NAMESPACE: eq-eh-namespace.servicebus.windows.net
+  EVENTHUB_NAME: earthquakes_hub
+
 jobs:
-  build-and-push:
+  build-push-deploy:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
@@ -18,9 +26,29 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Log in to ACR
-      run: az acr login --name eqacr535e7d69
+      run: az acr login --name ${{ env.ACR_NAME }}
 
     - name: Build and push Docker image
       run: |
-        docker build . -t eqacr535e7d69.azurecr.io/myapp:latest
-        docker push eqacr535e7d69.azurecr.io/myapp:latest
+        docker build . -t ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest
+        docker push ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest
+
+    - name: Deploy to Azure Container Instances
+      run: |
+        az container create \
+          --name ${{ env.ACI_NAME }} \
+          --resource-group ${{ env.RESOURCE_GROUP }} \
+          --image ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest \
+          --registry-login-server ${{ env.ACR_NAME }}.azurecr.io \
+          --registry-username ${{ secrets.ACR_USERNAME }} \
+          --registry-password ${{ secrets.ACR_PASSWORD }} \
+          --environment-variables \
+            EVENTHUB_NAMESPACE="${{ env.EVENTHUB_NAMESPACE }}" \
+            EVENTHUB_NAME="${{ env.EVENTHUB_NAME }}" \
+          --restart-policy Always \
+          --cpu 1 \
+          --memory 1.5
+
+    - name: Verify deployment
+      run: |
+        az container show --name ${{ env.ACI_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} --query provisioningState
